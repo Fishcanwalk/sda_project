@@ -26,6 +26,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
 run-web = "webapp.cmd.web:main"
+init-admin = "webapp.cmd.init_admin:main"
 
 [tool.ruff]
 line-length = 88
