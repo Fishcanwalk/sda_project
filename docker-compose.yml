@@ -35,22 +35,17 @@ services:
     volumes:
       - ./logs:/app/logs
 
-  nginx:
-    image: nginx:alpine
-    container_name: iotdb_nginx
-    restart: unless-stopped
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./nginx/conf.d:/etc/nginx/conf.d:ro
-      - ./nginx/ssl:/etc/nginx/ssl:ro
-      - ./static:/var/www/static:ro
-    depends_on:
-      - webapp
-    networks:
-      - iot_network
+#  nginx:
+#    image: nginx:alpine
+#    container_name: iotdb_nginx
+#    restart: unless-stopped
+#    ports:
+#      - "80:80"
+#      - "443:443"
+#    depends_on:
+#      - webapp
+#    networks:
+#      - iot_network
 
 networks:
   iot_network:
