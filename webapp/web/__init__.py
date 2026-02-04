@@ -6,13 +6,14 @@ from .. import models
 from .utils.error_handling import init_error_handling
 from .utils import acl
 from dotenv import load_dotenv
+import json
 
 
 def load_config(app):
 
-    app.config.from_object("webapp.default_settings")
-    app.config.from_envvar("APP_SETTINGS")
     load_dotenv()
+    app.config.from_object("webapp.default_settings")
+    app.config.from_envvar("APP_SETTINGS", silent=True)
 
     for k, v in os.environ.items():
         if v in ["True", "TRUE", "False", "FALSE"]:
