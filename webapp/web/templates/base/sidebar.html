@@ -11,12 +11,14 @@
         <div class="divider"></div>
 
         <li>
-            <a href="{{ url_for('index.index') }}"><i class="ph ph-house-line text-2xl"></i>Home</a>
+            <a href="{{ url_for('site.home') }}"><i class="ph ph-house-line text-2xl"></i>Home</a>
         </li>
         <li>
             <a href="{{ url_for('dashboard.index') }}"><i class="ph ph-speedometer text-2xl"></i>Dashboard</a>
         </li>
-
+        <li>
+            <a href="{{ url_for('site.index') }}"><i class="ph ph-sign-out text-2xl"></i>Logout</a>
+        </li>
 
     </ul>
 </div>

@@ -1,0 +1,12 @@
+{% extends "base/default_page.html" %}
+
+{% block content %}
+<div
+    style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 80vh; text-align: center; overflow: hidden;">
+    <h1 style="font-size: 3em; margin-bottom: 20px;">Welcome to IoT Monitoring</h1>
+    <p style="font-size: 1.5em; margin-bottom: 30px;">This is the index page.Please Login to continue.</p>
+    <a class="btn btn-primary" href="{{ url_for('users.login') }}" style="font-size: 1.2em; padding: 12px 24px;">
+        Login
+    </a>
+</div>
+{% endblock %}
