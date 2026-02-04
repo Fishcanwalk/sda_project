@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template
 
-module = Blueprint("dashboard", __name__)
+module = Blueprint("dashboard", __name__, url_prefix="/dashboard")
 
 
 @module.route("/")

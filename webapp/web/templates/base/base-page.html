@@ -1,0 +1,17 @@
+{% extends "base/base.html" %}
+
+{% block body %}
+<div class="drawer lg:drawer-open">
+    <input id="drawer-menu" type="checkbox" class="drawer-toggle" />
+    <div class="drawer-content">
+        <div class="px-3 lg:px-5 py-10 mx-auto">
+            <label for="drawer-menu" class="btn btn-primary drawer-button lg:hidden">
+                <i class="ph ph-list text-2xl"></i>
+            </label>
+            {% block content %}
+            {% endblock content %}
+        </div>
+    </div>
+    {% include "base/sidebar.html" %}
+</div>
+{% endblock body %}

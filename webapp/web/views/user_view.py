@@ -26,10 +26,7 @@ def login():
         return render_template(
             "/users/login.html", form=form, error_msg=login_result["error_msg"]
         )
-
-    # Prefer the `next` query parameter but fall back to dashboard index
-    # if `next` is missing or empty (handles cases where next="").
-    return render_template("dashboard/index.html")
+    return redirect(url_for("dashboard.index"))
 
 
 @module.route("/register", methods=["get", "post"])

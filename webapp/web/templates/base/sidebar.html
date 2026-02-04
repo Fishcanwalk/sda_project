@@ -1,0 +1,43 @@
+<div class="drawer-side z-50">
+    <label for="drawer-menu" aria-label="close sidebar" class="drawer-overlay h-full"></label>
+    <ul class="menu menu-md bg-primary text-white min-h-full w-60 p-4 gap-2">
+        <!-- Sidebar content here -->
+
+        <div class="flex flex-col items-center gap-2">
+            <i class="ph ph-user-circle text-5xl"></i>
+            <span class="text-md">{{ current_user.username }}</span>
+        </div>
+
+        <div class="divider"></div>
+
+        <li>
+            <a href="{{ url_for('index.index') }}"><i class="ph ph-house-line text-2xl"></i>Home</a>
+        </li>
+        <li>
+            <a href="{{ url_for('dashboard.index') }}"><i class="ph ph-speedometer text-2xl"></i>Dashboard</a>
+        </li>
+
+
+    </ul>
+</div>
+
+<style>
+    .menu li>*:not(ul):not(.menu-title):not(details):hover {
+        background-color: white;
+        color: black;
+    }
+
+    .menu .divider::before {
+        background-color: white;
+    }
+
+    .menu .divider::after {
+        background-color: white;
+    }
+
+    details[open] ul::before {
+        background-color: white;
+        /* Change to your desired color */
+        width: 2px;
+    }
+</style>
