@@ -1,0 +1,61 @@
+version: "3.8"
+
+services:
+  mongodb:
+    image: mongo:7.0
+    container_name: iotdb_mongodb
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_DATABASE: ${MONGODB_DB:-iotdb}
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+      - mongodb_config:/data/configdb
+    networks:
+      - iot_network
+
+  webapp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: iotdb_webapp
+    restart: unless-stopped
+    environment:
+      - DEBUG=${DEBUG:-False}
+      - SECRET_KEY=${SECRET_KEY:-changethisonproduction}
+      - MONGODB_DB=${MONGODB_DB:-iotdb}
+      - MONGODB_HOST=mongodb
+      - MONGODB_PORT=27017
+      - APP_TITLE=${APP_TITLE:-IoT Management Web}
+    depends_on:
+      - mongodb
+    networks:
+      - iot_network
+    volumes:
+      - ./logs:/app/logs
+
+  nginx:
+    image: nginx:alpine
+    container_name: iotdb_nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+      - ./static:/var/www/static:ro
+    depends_on:
+      - webapp
+    networks:
+      - iot_network
+
+networks:
+  iot_network:
+    driver: bridge
+
+volumes:
+  mongodb_data:
+  mongodb_config:
