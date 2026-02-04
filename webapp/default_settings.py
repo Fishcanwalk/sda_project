@@ -1,2 +1,2 @@
-MONGODB_DB = "webappdb"
-APP_TITLE = "Flask App"
+MONGODB_DB = "iotdb"
+APP_TITLE = "IoT Management Web"
