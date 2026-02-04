@@ -32,6 +32,7 @@ instance/
 .venv
 env/
 venv/
+.envrc
 
 node_modules/
 
