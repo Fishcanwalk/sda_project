@@ -25,7 +25,7 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "8080:8080"
+      - "80:8080"
     container_name: iotdb_webapp
     restart: no
     env_file:
@@ -37,6 +37,7 @@ services:
       - MONGODB_HOST=mongodb
       - MONGODB_PORT=27017
       - APP_TITLE=${APP_TITLE:-IoT Management Web}
+      - PYTHONUNBUFFERED=1
     depends_on:
       - mongodb
     networks:
@@ -50,20 +51,6 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
-
-#Note: other app 10.0.11.0/24 10.0.12.0/24
-
-#  nginx:
-#    image: nginx:alpine
-#    container_name: iotdb_nginx
-#    restart: unless-stopped
-#    ports:
-#      - "80:80"
-#      - "443:443"
-#    depends_on:
-#      - webapp
-#    networks:
-#      - iot_network
 
 networks:
   iot_network:
