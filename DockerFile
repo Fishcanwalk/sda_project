@@ -1,30 +1,44 @@
-FROM python:3.11-slim
+FROM debian:sid
+RUN echo 'deb http://mirror.psu.ac.th/debian/ sid main contrib non-free non-free-firmware' > /etc/apt/sources.list
+
+RUN apt-get update && apt-get upgrade -y
+
+# Install WeasyPrint dependencies and Thai fonts
+RUN apt-get update && \
+    apt-get install -y python3 python3-dev python3-pip python3-venv npm git locales libpango-1.0-0 libpangoft2-1.0-0 libharfbuzz-subset0 \
+    fonts-thai-tlwg fonts-noto-cjk fonts-dejavu-core fontconfig
+
+# Refresh font cache
+RUN fc-cache -fv
+# RUN apt install -y python3 python3-dev python3-pip python3-venv npm git locales libpango-1.0-0 libpangoft2-1.0-0 libharfbuzz-subset0
+RUN sed -i '/th_TH.UTF-8/s/^# //g' /etc/locale.gen && locale-gen
+ENV LANG en_US.UTF-8 
+# ENV LC_ALL en_US.UTF-8
+
+
+
+RUN python3 -m venv /venv
+ENV PYTHON=/venv/bin/python3
+RUN $PYTHON -m pip install wheel poetry gunicorn weasyprint mongoengine
 
 WORKDIR /app
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-    gcc \
-    && rm -rf /var/lib/apt/lists/*
+COPY webapp/cmd /app/webapp/cmd
+COPY poetry.lock pyproject.toml README.md /app/
 
-# Install Poetry
-RUN pip install --no-cache-dir poetry
+RUN . /venv/bin/activate \
+	&& poetry config virtualenvs.create false \
+	&& poetry install --no-interaction --only main
 
-# Copy dependency files
-COPY pyproject.toml poetry.lock* ./
+COPY webapp/web/static/package.json webapp/web/static/package-lock.json webapp/web/static/
+RUN npm install --prefix webapp/web/static
 
-# Install dependencies
-RUN poetry config virtualenvs.create false \
-    && poetry install --no-dev --no-interaction --no-ansi
+COPY . /app
 
-# Copy application code
-COPY . .
+WORKDIR /app/webapp/web/static
+RUN npx @tailwindcss/cli -i ./css/setup.css -o ./css/app.css
 
-# Create logs directory
-RUN mkdir -p /app/logs
 
-# Expose port
-EXPOSE 8080
+WORKDIR /app
 
-# Run the application
-CMD ["poetry", "run", "run-web", "-H", "0.0.0.0", "-P", "8080"]
+

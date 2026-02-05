@@ -2,7 +2,7 @@ version: "3.8"
 
 services:
   mongodb:
-    image: mongo:7.0
+    image: mongo
     container_name: iotdb_mongodb
     restart: unless-stopped
     environment:
@@ -12,19 +12,26 @@ services:
     volumes:
       - mongodb_data:/data/db
       - mongodb_config:/data/configdb
+      - /etc/localtime:/etc/localtime:ro
     networks:
       - iot_network
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   webapp:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    build: .
+    ports:
+      - "8080:8080"
     container_name: iotdb_webapp
-    restart: unless-stopped
+    restart: no
+    env_file:
+      - .env
     environment:
       - DEBUG=${DEBUG:-False}
-      - SECRET_KEY=${SECRET_KEY:-changethisonproduction}
-      - MONGODB_DB=${MONGODB_DB:-iotdb}
+      - SECRET_KEY=${SECRET_KEY}
+      - MONGODB_DB=${MONGODB_DB}
       - MONGODB_HOST=mongodb
       - MONGODB_PORT=27017
       - APP_TITLE=${APP_TITLE:-IoT Management Web}
@@ -33,7 +40,16 @@ services:
     networks:
       - iot_network
     volumes:
-      - ./logs:/app/logs
+      - /etc/localtime:/etc/localtime:ro
+      - .:/app
+    command:
+      "/app/scripts/run-web-docker"
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+#Note: other app 10.0.11.0/24 10.0.12.0/24
 
 #  nginx:
 #    image: nginx:alpine
@@ -53,4 +69,5 @@ networks:
 
 volumes:
   mongodb_data:
+    driver: local
   mongodb_config:
