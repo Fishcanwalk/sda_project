@@ -21,7 +21,9 @@ services:
         max-file: "3"
 
   webapp:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     ports:
       - "8080:8080"
     container_name: iotdb_webapp

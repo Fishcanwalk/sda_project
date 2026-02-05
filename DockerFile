@@ -17,7 +17,7 @@ ENV LANG en_US.UTF-8
 
 
 
-RUN python3 -m venv /venv
+RUN python3 -m venv /venv && chmod -R +x /venv/bin
 ENV PYTHON=/venv/bin/python3
 RUN $PYTHON -m pip install wheel poetry gunicorn weasyprint mongoengine
 

@@ -1,11 +1,8 @@
 #!/bin/sh
 
-# Make sure scripts are executable
-chmod +x /app/scripts/npm
-chmod +x /app/scripts/run-web
-
 /app/scripts/npm run tw:watch &
 
-# Use full Python path since venv is already activated in Dockerfile
-./venv/bin/activate && poetry install && /app/scripts/run-web -H 0.0.0.0 -P 8080
+# Use full Python path from venv directly
+export PATH=/venv/bin:$PATH
+poetry install && /app/scripts/run-web -H 0.0.0.0 -P 8080
 
