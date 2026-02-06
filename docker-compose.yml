@@ -1,6 +1,25 @@
 version: "3.8"
 
 services:
+  nginx:
+    image: nginx:latest
+    container_name: iotdb_nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./nginx/certs:/etc/nginx/certs:ro
+      - /etc/localtime:/etc/localtime:ro
+    depends_on:
+      - webapp
+    networks:
+      - iot_network
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "3"
+
   mongodb:
     image: mongo
     container_name: iotdb_mongodb
