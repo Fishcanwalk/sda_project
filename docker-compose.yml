@@ -6,22 +6,16 @@ services:
     container_name: iotdb_nginx
     restart: unless-stopped
     ports:
-      - "80:80"
-      - "443:443"
+     - "80:80"
+     - "443:443"
     volumes:
-      - ./nginx/conf.d:/etc/nginx/conf.d:ro
-      - ./certbot/www:/var/www/certbot:ro
-      - ./certbot/conf:/etc/letsencrypt:ro
-      - /etc/localtime:/etc/localtime:ro
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
     depends_on:
       - webapp
     networks:
       - iot_network
-    logging:
-      options:
-        max-size: "10m"
-        max-file: "3"
-
   certbot:
     image: certbot/certbot
     container_name: certbot
@@ -29,7 +23,6 @@ services:
       - ./certbot/conf:/etc/letsencrypt
       - ./certbot/www:/var/www/certbot
     command: certonly --webroot -w /var/www/certbot --force-renewal --email oab084@gmail.com -d airkfh.xyz --agree-tos
-
   mongodb:
     image: mongo
     container_name: iotdb_mongodb
@@ -74,6 +67,7 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - .:/app
+    
     command: "/app/scripts/run-web-docker"
     logging:
       options:
