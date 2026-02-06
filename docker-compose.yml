@@ -24,8 +24,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    ports:
-      - "80:8080"
+    expose:
+      - "8080"
     container_name: iotdb_webapp
     restart: no
     env_file:
@@ -45,8 +45,7 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - .:/app
-    command:
-      "/app/scripts/run-web-docker"
+    command: "/app/scripts/run-web-docker"
     logging:
       options:
         max-size: "10m"

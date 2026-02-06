@@ -3,6 +3,7 @@ RUN echo 'deb http://mirror.psu.ac.th/debian/ sid main contrib non-free non-free
 
 RUN apt-get update && apt-get upgrade -y
 
+
 # Install WeasyPrint dependencies and Thai fonts
 RUN apt-get update && \
     apt-get install -y python3 python3-dev python3-pip python3-venv npm git locales libpango-1.0-0 libpangoft2-1.0-0 libharfbuzz-subset0 \
@@ -38,7 +39,7 @@ COPY . /app
 WORKDIR /app/webapp/web/static
 RUN npx @tailwindcss/cli -i ./css/setup.css -o ./css/app.css
 
-
 WORKDIR /app
+
 
 
