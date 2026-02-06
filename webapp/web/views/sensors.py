@@ -2,16 +2,19 @@ from flask import Blueprint, render_template
 import json
 from flask import request, jsonify  # type: ignore
 import datetime
+
+from webapp.web.utils.acl import roles_required
 from ...models import sensors
 
 module = Blueprint("sensors", __name__, url_prefix="/sensors")
 
 
+@roles_required("user", "admin")
 @module.route("/")
 def index():
     return render_template("/sensors/index.html")
 
-
+@roles_required("user", "admin")
 @module.route("/view")
 def view():
     return render_template("/sensors/view.html")
@@ -39,6 +42,7 @@ def update_sensor():
     )
 
 
+@roles_required("user", "admin")
 @module.route("/temperature/latest")
 def temperature_latest():
     """Get latest temperature reading with stats"""
@@ -63,6 +67,7 @@ def temperature_latest():
     )
 
 
+@roles_required("user", "admin")
 @module.route("/temperature/history")
 def temperature_history():
     """Get temperature history for last N hours"""
@@ -82,6 +87,7 @@ def temperature_history():
     )
 
 
+@roles_required("user", "admin")
 @module.route("/humidity/latest")
 def humidity_latest():
     latest = sensors.HumiditySensor.objects.order_by("-timestamp").first()
@@ -103,6 +109,7 @@ def humidity_latest():
     )
 
 
+@roles_required("user", "admin")
 @module.route("/humidity/history")
 def humidity_history():
     from flask import request
@@ -121,6 +128,7 @@ def humidity_history():
     )
 
 
+@roles_required("user", "admin")
 @module.route("/light/latest")
 def light_latest():
     latest = sensors.LightSensor.objects.order_by("-timestamp").first()
@@ -142,6 +150,7 @@ def light_latest():
     )
 
 
+@roles_required("user", "admin")
 @module.route("/light/history")
 def light_history():
     from flask import request
@@ -160,6 +169,7 @@ def light_history():
     )
 
 
+@roles_required("user", "admin")
 @module.route("/rain/latest")
 def rain_latest():
     latest = sensors.RainSensor.objects.order_by("-timestamp").first()
@@ -189,6 +199,7 @@ def rain_latest():
     )
 
 
+@roles_required("user", "admin")
 @module.route("/rain/history")
 def rain_history():
     from flask import request
