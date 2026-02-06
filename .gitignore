@@ -47,3 +47,6 @@ node_modules/
 
 # Cython debug symbols
 cython_debug/
+
+# mac
+.DS_Store

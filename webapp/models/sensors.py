@@ -48,3 +48,11 @@ class HumiditySensor(me.Document):
     timestamp = me.DateTimeField(required=True, default=datetime.datetime.now)
 
     meta = {"collection": "humidity_sensor"}
+    
+
+class SmokeSensor(me.Document):
+    title = me.StringField(required=True)
+    value = me.FloatField(required=True)  # ppm
+    timestamp = me.DateTimeField(required=True, default=datetime.datetime.now)
+
+    meta = {"collection": "smoke_sensor"}
