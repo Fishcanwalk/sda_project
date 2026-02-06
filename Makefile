@@ -35,8 +35,8 @@ up:
 
 # Stop services
 down:
-	@echo "⏹️  Stopping services..."
-	docker-compose down
+	@echo "Stopping services..."
+	docker compose down
 
 # Restart services
 restart: down up
@@ -44,38 +44,35 @@ restart: down up
 # Restart specific service
 restart-webapp:
 	@echo "Restarting webapp..."
-	docker-compose restart webapp
+	docker compose restart webapp
 
 restart-db:
 	@echo "Restarting MongoDB..."
-	docker-compose restart mongodb
-
+	docker compose restart mongodb
 # Show logs
 logs:
-	docker-compose logs --tail=100
+	docker compose logs --tail=100
 
 # Follow logs
 logs-follow:
-	docker-compose logs -f
-
+	docker compose logs -f
 # Show webapp logs only
 logs-webapp:
-	docker-compose logs --tail=100 webapp
+	docker compose logs --tail=100 webapp
 
 # Show MongoDB logs only
 logs-db:
-	docker-compose logs --tail=100 mongodb
-
+	docker compose logs --tail=100 mongodb
 # Follow webapp logs
 logs-webapp-follow:
-	docker-compose logs -f webapp
+	docker compose logs -f webapp
 
 # Detailed status
 db-backup:
 	@echo "Backing up MongoDB..."
 	@mkdir -p backups
 	docker exec iotdb_mongodb mongodump --db=iotdb --out=/tmp/backup
-	docker cp iotdb_mongodb:/tmp/backup ./backups/backup-$(shell date +%Y%m%d-%H%M%S)
+	docker compose cp iotdb_mongodb:/tmp/backup ./backups/backup-$(shell date +%Y%m%d-%H%M%S)
 	@echo "Backup completed in ./backups/"
 
 # Restore MongoDB (use: make db-restore BACKUP=backups/backup-20260205-120000)
