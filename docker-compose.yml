@@ -74,6 +74,7 @@ services:
       - .:/app
 
     command: "/app/scripts/run-web-docker"
+
     logging:
       options:
         max-size: "10m"

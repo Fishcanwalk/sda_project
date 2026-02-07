@@ -28,8 +28,13 @@ COPY webapp/cmd /app/webapp/cmd
 COPY poetry.lock pyproject.toml README.md /app/
 
 RUN . /venv/bin/activate \
-	&& poetry config virtualenvs.create false \
-	&& poetry install --no-interaction --only main
+    && poetry config virtualenvs.create false \
+    && poetry install --no-interaction --only main
+
+# Copy entrypoint that will run initialization at container start (not at build time)
+COPY scripts/entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+ENTRYPOINT ["/entrypoint.sh"]
 
 COPY webapp/web/static/package.json webapp/web/static/package-lock.json webapp/web/static/
 RUN npm install --prefix webapp/web/static
