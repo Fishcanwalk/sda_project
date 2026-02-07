@@ -3,11 +3,11 @@ version: "3.8"
 services:
   nginx:
     image: nginx:latest
-    container_name: iotdb_nginx
+    container_name: iot_nginx
     restart: unless-stopped
     ports:
-     - "80:80"
-     - "443:443"
+      - "80:80"
+      - "443:443"
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
       - ./certbot/conf:/etc/letsencrypt
@@ -16,16 +16,18 @@ services:
       - webapp
     networks:
       - iot_network
+
   certbot:
     image: certbot/certbot
     container_name: certbot
-    volumes: 
+    volumes:
       - ./certbot/conf:/etc/letsencrypt
       - ./certbot/www:/var/www/certbot
     command: certonly --webroot -w /var/www/certbot --force-renewal --email oab084@gmail.com -d airkfh.xyz --agree-tos
+
   mongodb:
     image: mongo
-    container_name: iotdb_mongodb
+    container_name: iot_mongodb
     restart: unless-stopped
     environment:
       MONGO_INITDB_DATABASE: ${MONGODB_DB:-iotdb}
@@ -48,10 +50,13 @@ services:
       dockerfile: Dockerfile
     expose:
       - "8080"
-    container_name: iotdb_webapp
+    #container_name: iot_webapp
     restart: no
     env_file:
       - .env
+    deploy:
+      replicas: 3
+
     environment:
       - DEBUG=${DEBUG:-False}
       - SECRET_KEY=${SECRET_KEY}
@@ -67,7 +72,7 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - .:/app
-    
+
     command: "/app/scripts/run-web-docker"
     logging:
       options:
