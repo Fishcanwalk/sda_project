@@ -12,7 +12,7 @@ def init_acl(app: Flask):
     login_manager.init_app(app)
 
 
-def roles_required(roles: list[str]):
+def roles_required(roles):
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):

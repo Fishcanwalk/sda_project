@@ -10,7 +10,7 @@ def index():
     return render_template("/site/index.html")
 
 
-@roles_required("user", "admin")
 @module.route("/home")
+@roles_required("user", "admin")
 def home():
     return render_template("/site/home.html")

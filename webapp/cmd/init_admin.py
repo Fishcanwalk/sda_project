@@ -18,12 +18,14 @@ def main():
         if admin_user:
             print("Admin user already exists. Updating password...")
             admin_user.set_password("admin")
+            admin_user.role = "admin"
             admin_user.save()
             print("✓ Admin password updated")
         else:
             print("Creating new admin user...")
             admin_user = User(username="admin")
             admin_user.set_password("admin")
+            admin_user.role = "admin"
             admin_user.save()
             print("✓ Admin user created successfully")
 

@@ -9,41 +9,19 @@ from ...models import sensors
 module = Blueprint("sensors", __name__, url_prefix="/sensors")
 
 
-@roles_required("user", "admin")
 @module.route("/")
+@roles_required("user", "admin")
 def index():
     return render_template("/sensors/index.html")
 
-@roles_required("user", "admin")
 @module.route("/view")
+@roles_required("user", "admin")
 def view():
     return render_template("/sensors/view.html")
 
 
-@module.route("/update-sensor", methods=["POST"])
-def update_sensor():
-    # 1. รับข้อมูล JSON ที่ส่งมาจาก Pi
-    print("555555555555555555555555555555555")
-    data = request.get_json()
-
-    if not data:
-        return jsonify({"message": "No data provided"}), 400
-
-    # 2. ดึงค่าแต่ละตัวออกมา (ตัวอย่าง: รับค่า temp และ device_id)
-    device_id = data.get("device_id")
-    temp = data.get("temperature")
-
-    # 3. นำไปใช้งาน (เช่น Print ดู หรือบันทึกลงฐานข้อมูล)
-    print(f"Received from {device_id}: {temp} C")
-
-    return (
-        jsonify({"status": "success", "message": f"Data received for {device_id}"}),
-        200,
-    )
-
-
-@roles_required("user", "admin")
 @module.route("/temperature/latest")
+@roles_required("user", "admin")
 def temperature_latest():
     """Get latest temperature reading with stats"""
     latest = sensors.TemperatureSensor.objects.order_by("-timestamp").first()
@@ -67,8 +45,8 @@ def temperature_latest():
     )
 
 
-@roles_required("user", "admin")
 @module.route("/temperature/history")
+@roles_required("user", "admin")
 def temperature_history():
     """Get temperature history for last N hours"""
     from flask import request
@@ -87,8 +65,8 @@ def temperature_history():
     )
 
 
-@roles_required("user", "admin")
 @module.route("/humidity/latest")
+@roles_required("user", "admin")
 def humidity_latest():
     latest = sensors.HumiditySensor.objects.order_by("-timestamp").first()
     if not latest:
@@ -109,8 +87,8 @@ def humidity_latest():
     )
 
 
-@roles_required("user", "admin")
 @module.route("/humidity/history")
+@roles_required("user", "admin")
 def humidity_history():
     from flask import request
 
@@ -128,8 +106,8 @@ def humidity_history():
     )
 
 
-@roles_required("user", "admin")
 @module.route("/light/latest")
+@roles_required("user", "admin")
 def light_latest():
     latest = sensors.LightSensor.objects.order_by("-timestamp").first()
     if not latest:
@@ -150,8 +128,8 @@ def light_latest():
     )
 
 
-@roles_required("user", "admin")
 @module.route("/light/history")
+@roles_required("user", "admin")
 def light_history():
     from flask import request
 
@@ -169,8 +147,8 @@ def light_history():
     )
 
 
-@roles_required("user", "admin")
 @module.route("/rain/latest")
+@roles_required("user", "admin")
 def rain_latest():
     latest = sensors.RainSensor.objects.order_by("-timestamp").first()
     if not latest:
@@ -199,8 +177,8 @@ def rain_latest():
     )
 
 
-@roles_required("user", "admin")
 @module.route("/rain/history")
+@roles_required("user", "admin")
 def rain_history():
     from flask import request
 
