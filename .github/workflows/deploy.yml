@@ -19,12 +19,9 @@ jobs:
           host: ${{ secrets.GCE_VM_IP }}
           username: ${{ secrets.GCE_SSH_USER }}
           key: ${{ secrets.GCE_SSH_KEY }}
+          debug: true
           script: |
             cd /home/sda_project
-            
             docker compose down
-
-            # Pull the latest changes
             git pull origin main
-            
             docker compose up -d --build
