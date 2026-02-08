@@ -22,8 +22,6 @@ jobs:
           debug: true
           script: |
             cd /home/sda_project
-            git stash 
             docker compose down
             git pull origin main
-            git stash pop
             docker compose up -d --build
