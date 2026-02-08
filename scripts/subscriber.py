@@ -8,7 +8,7 @@ os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "./keycredentials.json"
 project_id = "sda-project-486506"
 subscription_id = "sensor-data-sub"
 
-MONGO_URI = "mongodb://airkfh.xyz:27017/"
+MONGO_URI = os.getenv("MONGO_URI", "mongodb://mongodb:27017/")
 client = MongoClient(MONGO_URI)
 db = client["iotdb"]
 
