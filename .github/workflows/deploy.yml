@@ -12,14 +12,7 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
-
-      - name: debug SSH Key
-        run: |
-          echo "$SSH_AUTH_SOCK"
-          ls -l $SSH_AUTH_SOCK
-      - name: Debug GCE_VM_IP
-        run: echo "GCE_VM_IP is ${{ secrets.GCE_VM_IP }}"
-        
+  
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
