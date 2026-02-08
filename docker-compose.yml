@@ -44,13 +44,21 @@ services:
         max-size: "10m"
         max-file: "3"
   subscriber:
-    build: ./subscriber
+    build:
+      context: .
+      dockerfile: ./subscriber/Dockerfile
     container_name: iot_subscriber
     depends_on:
       - mongodb
     environment:
       - GOOGLE_APPLICATION_CREDENTIALS=/app/keycredentials.json
+      - MONGO_URI=mongodb://mongodb:27017/
     restart: always
+    networks:
+      - iot_network
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./keycredentials.json:/app/keycredentials.json:ro
 
   webapp:
     build:
