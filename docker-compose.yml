@@ -43,6 +43,14 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
+  subscriber:
+    build: ./subscriber
+    container_name: iot_subscriber
+    depends_on:
+      - iot_mongodb
+    environment:
+      - GOOGLE_APPLICATION_CREDENTIALS=/app/keycredentials.json
+    restart: always
 
   webapp:
     build:
