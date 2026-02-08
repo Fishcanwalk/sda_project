@@ -47,7 +47,7 @@ services:
     build: ./subscriber
     container_name: iot_subscriber
     depends_on:
-      - iot_mongodb
+      - mongodb
     environment:
       - GOOGLE_APPLICATION_CREDENTIALS=/app/keycredentials.json
     restart: always
