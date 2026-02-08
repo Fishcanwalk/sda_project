@@ -79,9 +79,9 @@
             <div class="card-body">
                 <div class="flex justify-between items-start">
                     <div>
-                        <h2 class="card-title text-white/90 text-sm font-normal">Light Intensity</h2>
+                        <h2 class="card-title text-white/90 text-sm font-normal">Light Status</h2>
                         <p class="text-4xl font-bold mt-2" id="light-value">--</p>
-                        <p class="text-white/80 text-sm mt-1">lux</p>
+                        <p class="text-white/80 text-sm mt-1">Sensor</p>
                     </div>
                     <div class="bg-white/20 p-3 rounded-lg">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -91,8 +91,7 @@
                 </div>
                 <div class="mt-4">
                     <div class="flex justify-between text-xs text-white/70">
-                        <span>Min: <span id="light-min">--</span></span>
-                        <span>Max: <span id="light-max">--</span></span>
+
                     </div>
                     <div class="text-xs text-white/60 mt-2" id="light-time">Updated: --</div>
                 </div>
@@ -116,7 +115,6 @@
                 </div>
                 <div class="mt-4">
                     <div class="flex justify-between text-xs text-white/70">
-                        <span>Today: <span id="rain-today">--</span>mm</span>
                         <span>Status: <span id="rain-status">--</span></span>
                     </div>
                     <div class="text-xs text-white/60 mt-2" id="rain-time">Updated: --</div>
@@ -268,30 +266,30 @@ function initCharts() {
         }
     });
 
-    // Light Chart
+    // Light Chart (Boolean - show as 0/1)
     lightChart = new Chart(document.getElementById('lightChart'), {
         ...chartConfig,
+        type: 'bar',
         data: {
             labels: [],
             datasets: [{
-                label: 'Light (lux)',
+                label: 'Light (ON/OFF)',
                 data: [],
+                backgroundColor: 'rgba(251, 191, 36, 0.6)',
                 borderColor: 'rgb(251, 191, 36)',
-                backgroundColor: 'rgba(251, 191, 36, 0.1)',
-                tension: 0.4,
-                fill: true
+                borderWidth: 1
             }]
         }
     });
 
-    // Rain Chart
+    // Rain Chart (Boolean - show as 0/1)
     rainChart = new Chart(document.getElementById('rainChart'), {
         ...chartConfig,
         type: 'bar',
         data: {
             labels: [],
             datasets: [{
-                label: 'Rain (mm)',
+                label: 'Rain (Raining/Dry)',
                 data: [],
                 backgroundColor: 'rgba(99, 102, 241, 0.6)',
                 borderColor: 'rgb(99, 102, 241)',
@@ -305,7 +303,12 @@ function initCharts() {
 async function fetchSensorData(sensorType, endpoint) {
     try {
         const response = await fetch(endpoint);
+        if (!response.ok) {
+            console.error(`${sensorType} API error:`, response.status, response.statusText);
+            return null;
+        }
         const data = await response.json();
+        console.log(`Fetched ${sensorType}:`, data);
         return data;
     } catch (error) {
         console.error(`Error fetching ${sensorType}:`, error);
@@ -315,6 +318,7 @@ async function fetchSensorData(sensorType, endpoint) {
 
 // Update dashboard
 async function updateDashboard() {
+    console.log('Updating dashboard...');
     // Fetch latest data for each sensor type
     const [tempData, humidityData, lightData, rainData] = await Promise.all([
         fetchSensorData('temperature', '/sensors/temperature/latest'),
@@ -339,16 +343,15 @@ async function updateDashboard() {
     }
 
     if (lightData) {
-        document.getElementById('light-value').textContent = lightData.value.toFixed(0);
-        document.getElementById('light-min').textContent = lightData.min.toFixed(0);
-        document.getElementById('light-max').textContent = lightData.max.toFixed(0);
+        // Light sensor is boolean
+        document.getElementById('light-value').textContent = lightData.value ? 'ON' : 'OFF';
         document.getElementById('light-time').textContent = `Updated: ${formatTime(lightData.timestamp)}`;
     }
 
     if (rainData) {
-        document.getElementById('rain-value').textContent = rainData.value.toFixed(1);
-        document.getElementById('rain-today').textContent = rainData.total_today.toFixed(1);
-        document.getElementById('rain-status').textContent = rainData.value > 0 ? 'Raining' : 'Dry';
+        // Rain sensor is boolean
+        document.getElementById('rain-value').textContent = rainData.value ? 'RAINING' : 'DRY';
+        document.getElementById('rain-status').textContent = rainData.value ? 'Active' : 'Inactive';
         document.getElementById('rain-time').textContent = `Updated: ${formatTime(rainData.timestamp)}`;
     }
 
@@ -364,6 +367,7 @@ async function updateDashboard() {
 
 // Update charts with historical data
 async function updateCharts() {
+    console.log('Fetching chart data...');
     const [tempHistory, humidityHistory, lightHistory, rainHistory] = await Promise.all([
         fetchSensorData('temperature', '/sensors/temperature/history?hours=24'),
         fetchSensorData('humidity', '/sensors/humidity/history?hours=24'),
@@ -371,44 +375,63 @@ async function updateCharts() {
         fetchSensorData('rain', '/sensors/rain/history?hours=24')
     ]);
 
-    if (tempHistory) {
+    if (tempHistory && tempHistory.length) {
+        console.log('Updating temperature chart with', tempHistory.length, 'points');
         tempChart.data.labels = tempHistory.map(d => formatTime(d.timestamp));
         tempChart.data.datasets[0].data = tempHistory.map(d => d.value);
         tempChart.update();
+    } else {
+        console.warn('No temperature history data');
     }
 
-    if (humidityHistory) {
+    if (humidityHistory && humidityHistory.length) {
+        console.log('Updating humidity chart with', humidityHistory.length, 'points');
         humidityChart.data.labels = humidityHistory.map(d => formatTime(d.timestamp));
         humidityChart.data.datasets[0].data = humidityHistory.map(d => d.value);
         humidityChart.update();
+    } else {
+        console.warn('No humidity history data');
     }
 
-    if (lightHistory) {
+    if (lightHistory && lightHistory.length) {
+        console.log('Updating light chart with', lightHistory.length, 'points');
         lightChart.data.labels = lightHistory.map(d => formatTime(d.timestamp));
-        lightChart.data.datasets[0].data = lightHistory.map(d => d.value);
+        lightChart.data.datasets[0].data = lightHistory.map(d => d.value ? 1 : 0);
         lightChart.update();
+    } else {
+        console.warn('No light history data');
     }
 
-    if (rainHistory) {
+    if (rainHistory && rainHistory.length) {
+        console.log('Updating rain chart with', rainHistory.length, 'points');
         rainChart.data.labels = rainHistory.map(d => formatTime(d.timestamp));
-        rainChart.data.datasets[0].data = rainHistory.map(d => d.value);
+        rainChart.data.datasets[0].data = rainHistory.map(d => d.value ? 1 : 0);
         rainChart.update();
+    } else {
+        console.warn('No rain history data');
     }
 }
 
 // Update sensor details table
 function updateSensorTable(sensorData) {
     const tbody = document.getElementById('sensor-table-body');
+    const isBooleanSensor = (type) => type === 'Light' || type === 'Rain';
+    
     const sensors = [
         { type: 'Temperature', data: sensorData[0], unit: '°C', icon: '🌡️' },
         { type: 'Humidity', data: sensorData[1], unit: '%', icon: '💧' },
-        { type: 'Light', data: sensorData[2], unit: 'lux', icon: '💡' },
-        { type: 'Rain', data: sensorData[3], unit: 'mm', icon: '🌧️' }
+        { type: 'Light', data: sensorData[2], unit: '', icon: '💡' },
+        { type: 'Rain', data: sensorData[3], unit: '', icon: '🌧️' }
     ];
 
     tbody.innerHTML = sensors.map(s => {
         if (!s.data) return '';
         const statusClass = getStatusClass(s.type, s.data.value);
+        const isBoolean = isBooleanSensor(s.type);
+        const displayValue = isBoolean 
+            ? (s.data.value ? 'ON' : 'OFF')
+            : `${s.data.value.toFixed(1)} ${s.unit}`;
+        
         return `
             <tr>
                 <td>
@@ -417,7 +440,7 @@ function updateSensorTable(sensorData) {
                         <span class="font-medium">${s.type}</span>
                     </div>
                 </td>
-                <td class="font-semibold">${s.data.value.toFixed(2)} ${s.unit}</td>
+                <td class="font-semibold">${displayValue}</td>
                 <td><span class="badge ${statusClass}">Normal</span></td>
                 <td>${formatTime(s.data.timestamp)}</td>
                 <td>${s.data.title || 'N/A'}</td>
@@ -471,7 +494,9 @@ function refreshAllSensors() {
 
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('Dashboard loading...');
     initCharts();
+    console.log('Charts initialized');
     updateDashboard();
     
     // Auto-refresh every 30 seconds
