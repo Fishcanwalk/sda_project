@@ -20,7 +20,7 @@ class Sensor(me.Document):
 
 class RainSensor(me.Document):
     title = me.StringField(required=True)
-    value = me.BooleanField(required=False)
+    value = me.BooleanField(required=True)
     timestamp = me.DateTimeField(required=True, default=datetime.datetime.now)
 
     meta = {"collection": "rain_sensor"}
@@ -36,7 +36,7 @@ class TemperatureSensor(me.Document):
 
 class LightSensor(me.Document):
     title = me.StringField(required=True)
-    value = me.BooleanField(required=False)
+    value = me.BooleanField(required=True)
     timestamp = me.DateTimeField(required=True, default=datetime.datetime.now)
 
     meta = {"collection": "light_sensor"}
@@ -48,11 +48,11 @@ class HumiditySensor(me.Document):
     timestamp = me.DateTimeField(required=True, default=datetime.datetime.now)
 
     meta = {"collection": "humidity_sensor"}
-    
+
 
 class SmokeSensor(me.Document):
     title = me.StringField(required=True)
-    value = me.FloatField(required=True)  # ppm
+    value = me.BooleanField(required=True)
     timestamp = me.DateTimeField(required=True, default=datetime.datetime.now)
 
     meta = {"collection": "smoke_sensor"}

@@ -1,4 +1,6 @@
 from flask import Blueprint, render_template, redirect, url_for, request
+
+from webapp.web.utils.acl import roles_required
 from ..forms.user_form import LoginForm, RegisterForm
 from ...services.user_service import UserService
 
@@ -29,17 +31,18 @@ def login():
     return redirect(url_for("dashboard.index"))
 
 
-@module.route("/register", methods=["get", "post"])
+@module.route("/add-user", methods=["get", "post"])
+@roles_required("admin")
 def register():
     form = RegisterForm()
 
     if not form.validate_on_submit():
-        return render_template("/users/register.html", form=form)
+        return render_template("/users/add-user.html", form=form)
 
     register_result = UserService.register(form)
     if register_result["success"] is False:
         return render_template(
-            "/users/register.html", form=form, error_msg=register_result["error_msg"]
+            "/users/add-user.html", form=form, error_msg=register_result["error_msg"]
         )
 
-    return redirect(url_for("users.login"))
+    return redirect(url_for("site.home"))

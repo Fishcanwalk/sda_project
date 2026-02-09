@@ -54,6 +54,13 @@ def callback(message):
                 "timestamp": ts,
             }
         )
+        db["smoke_sensor"].insert_one(
+            {
+                "title": "Smoke Status",
+                "value": bool(raw_data.get("is_smoke")),
+                "timestamp": ts,
+            }
+        )
         message.ack()
     except Exception as e:
         print(f"❌ Error during transformation/save: {e}")

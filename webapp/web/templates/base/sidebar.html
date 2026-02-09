@@ -19,6 +19,11 @@
         <li>
             <a href="{{ url_for('sensors.index') }}"><i class="ph ph-thermometer text-2xl"></i>Sensors</a>
         </li>
+        {% if 'admin' in current_user.roles %}
+        <li>
+            <a href="{{ url_for('users.register') }}"><i class="ph ph-user-plus text-2xl"></i>Add user</a>
+        </li>
+        {% endif %}
         <li>
             <a href="{{ url_for('site.index') }}"><i class="ph ph-sign-out text-2xl"></i>Logout</a>
         </li>

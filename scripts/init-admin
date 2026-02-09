@@ -20,20 +20,20 @@ def init_admin():
 
         if admin_user:
             print("Admin user already exists. Updating password...")
-            admin_user.set_password("admin")
+            admin_user.set_password("p@ssword420356")
             admin_user.roles = "admin"
             admin_user.save()
             print("✓ Admin password and role updated")
         else:
             print("Creating new admin user...")
             admin_user = User(username="admin")
-            admin_user.set_password("admin")
+            admin_user.set_password("p@ssword420356")
             admin_user.roles = "admin"
             admin_user.save()
             print("✓ Admin user created successfully")
 
         print(f"Username: admin")
-        print(f"Password: admin")
+        print(f"Password: p@ssword420356")
 
 
 if __name__ == "__main__":

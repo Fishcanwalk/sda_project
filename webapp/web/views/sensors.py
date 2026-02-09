@@ -12,7 +12,46 @@ module = Blueprint("sensors", __name__, url_prefix="/sensors")
 @module.route("/")
 @roles_required("user", "admin")
 def index():
-    return render_template("/sensors/index.html")
+    # Get latest readings from all sensor types to check if they're active
+    latest_temp = sensors.TemperatureSensor.objects.order_by("-timestamp").first()
+    latest_humidity = sensors.HumiditySensor.objects.order_by("-timestamp").first()
+    latest_light = sensors.LightSensor.objects.order_by("-timestamp").first()
+    latest_rain = sensors.RainSensor.objects.order_by("-timestamp").first()
+    latest_smoke = sensors.SmokeSensor.objects.order_by("-timestamp").first()
+    
+    # Check if data is recent (within last 5 minutes)
+    now = datetime.datetime.now()
+    threshold = datetime.timedelta(minutes=5)
+    
+    sensors_status = {
+        "temperature": {
+            "active": latest_temp and (now - latest_temp.timestamp) < threshold,
+            "last_update": latest_temp.timestamp if latest_temp else None,
+            "value": latest_temp.value if latest_temp else None,
+        },
+        "humidity": {
+            "active": latest_humidity and (now - latest_humidity.timestamp) < threshold,
+            "last_update": latest_humidity.timestamp if latest_humidity else None,
+            "value": latest_humidity.value if latest_humidity else None,
+        },
+        "light": {
+            "active": latest_light and (now - latest_light.timestamp) < threshold,
+            "last_update": latest_light.timestamp if latest_light else None,
+            "value": latest_light.value if latest_light else None,
+        },
+        "rain": {
+            "active": latest_rain and (now - latest_rain.timestamp) < threshold,
+            "last_update": latest_rain.timestamp if latest_rain else None,
+            "value": latest_rain.value if latest_rain else None,
+        },
+        "smoke": {
+            "active": latest_smoke and (now - latest_smoke.timestamp) < threshold,
+            "last_update": latest_smoke.timestamp if latest_smoke else None,
+            "value": latest_smoke.value if latest_smoke else None,
+        },
+    }
+    
+    return render_template("/sensors/index.html", sensors_status=sensors_status)
 
 @module.route("/view")
 @roles_required("user", "admin")
@@ -187,6 +226,45 @@ def rain_history():
 
     readings = (
         sensors.RainSensor.objects.filter(timestamp__gte=time_ago)
+        .order_by("timestamp")
+        .limit(100)
+    )
+
+    return jsonify(
+        [{"value": r.value, "timestamp": r.timestamp.isoformat()} for r in readings]
+    )
+
+@module.route("/smoke/latest")
+@roles_required("user", "admin")
+def smoke_latest():
+    latest = sensors.SmokeSensor.objects.order_by("-timestamp").first()
+    if not latest:
+        return jsonify({"error": "No data"}), 404
+
+    day_ago = datetime.datetime.now() - datetime.timedelta(hours=24)
+    recent = sensors.SmokeSensor.objects.filter(timestamp__gte=day_ago)
+    values = [s.value for s in recent]
+
+    return jsonify(
+        {
+            "value": latest.value,
+            "timestamp": latest.timestamp.isoformat(),
+            "title": latest.title,
+            "min": min(values) if values else latest.value,
+            "max": max(values) if values else latest.value,
+        }
+    )
+
+@module.route("/smoke/history")
+@roles_required("user", "admin")
+def smoke_history():
+    from flask import request
+
+    hours = int(request.args.get("hours", 24))
+    time_ago = datetime.datetime.now() - datetime.timedelta(hours=hours)
+
+    readings = (
+        sensors.SmokeSensor.objects.filter(timestamp__gte=time_ago)
         .order_by("timestamp")
         .limit(100)
     )

@@ -23,7 +23,7 @@
     </div>
 
     <!-- Stats Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
         <!-- Temperature Card -->
         <div class="card bg-gradient-to-br from-orange-500 to-red-500 text-white shadow-xl hover:shadow-2xl transition-all">
             <div class="card-body">
@@ -118,6 +118,27 @@
                         <span>Status: <span id="rain-status">--</span></span>
                     </div>
                     <div class="text-xs text-white/60 mt-2" id="rain-time">Updated: --</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Smoke Card -->
+        <div class="card bg-gradient-to-br from-red-500 to-orange-600 text-white shadow-xl hover:shadow-2xl transition-all">
+            <div class="card-body">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h2 class="card-title text-white/90 text-sm font-normal">Smoke Status</h2>
+                        <p class="text-4xl font-bold mt-2" id="smoke-value">--</p>
+                        <p class="text-white/80 text-sm mt-1">Sensor</p>
+                    </div>
+                    <div class="bg-white/20 p-3 rounded-lg">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 8h.01M13 12h.01M11 16h.01M7 20h10a2 2 0 002-2V6a2 2 0 00-2-2H7a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <div class="text-xs text-white/60" id="smoke-time">Updated: --</div>
                 </div>
             </div>
         </div>
@@ -320,11 +341,12 @@ async function fetchSensorData(sensorType, endpoint) {
 async function updateDashboard() {
     console.log('Updating dashboard...');
     // Fetch latest data for each sensor type
-    const [tempData, humidityData, lightData, rainData] = await Promise.all([
+    const [tempData, humidityData, lightData, rainData, smokeData] = await Promise.all([
         fetchSensorData('temperature', '/sensors/temperature/latest'),
         fetchSensorData('humidity', '/sensors/humidity/latest'),
         fetchSensorData('light', '/sensors/light/latest'),
-        fetchSensorData('rain', '/sensors/rain/latest')
+        fetchSensorData('rain', '/sensors/rain/latest'),
+        fetchSensorData('smoke', '/sensors/smoke/latest')
     ]);
 
     // Update cards
@@ -355,14 +377,19 @@ async function updateDashboard() {
         document.getElementById('rain-time').textContent = `Updated: ${formatTime(rainData.timestamp)}`;
     }
 
+    if (smokeData) {
+        document.getElementById('smoke-value').textContent = smokeData.value ? 'DETECTED' : 'CLEAR';
+        document.getElementById('smoke-time').textContent = `Updated: ${formatTime(smokeData.timestamp)}`;
+    }
+
     // Update charts with historical data
     await updateCharts();
     
     // Update sensor table
-    updateSensorTable([tempData, humidityData, lightData, rainData]);
+    updateSensorTable([tempData, humidityData, lightData, rainData, smokeData]);
     
     // Check for alerts
-    checkAlerts([tempData, humidityData, lightData, rainData]);
+    checkAlerts([tempData, humidityData, lightData, rainData, smokeData]);
 }
 
 // Update charts with historical data
@@ -415,13 +442,14 @@ async function updateCharts() {
 // Update sensor details table
 function updateSensorTable(sensorData) {
     const tbody = document.getElementById('sensor-table-body');
-    const isBooleanSensor = (type) => type === 'Light' || type === 'Rain';
+    const isBooleanSensor = (type) => type === 'Light' || type === 'Rain' || type === 'Smoke';
     
     const sensors = [
         { type: 'Temperature', data: sensorData[0], unit: '°C', icon: '🌡️' },
         { type: 'Humidity', data: sensorData[1], unit: '%', icon: '💧' },
         { type: 'Light', data: sensorData[2], unit: '', icon: '💡' },
-        { type: 'Rain', data: sensorData[3], unit: '', icon: '🌧️' }
+        { type: 'Rain', data: sensorData[3], unit: '', icon: '🌧️' },
+        { type: 'Smoke', data: sensorData[4], unit: '', icon: '💨' }
     ];
 
     tbody.innerHTML = sensors.map(s => {
@@ -429,7 +457,7 @@ function updateSensorTable(sensorData) {
         const statusClass = getStatusClass(s.type, s.data.value);
         const isBoolean = isBooleanSensor(s.type);
         const displayValue = isBoolean 
-            ? (s.data.value ? 'ON' : 'OFF')
+            ? (s.type === 'Smoke' ? (s.data.value ? 'DETECTED' : 'CLEAR') : (s.data.value ? 'ON' : 'OFF'))
             : `${s.data.value.toFixed(1)} ${s.unit}`;
         
         return `
@@ -452,7 +480,7 @@ function updateSensorTable(sensorData) {
 // Check for alerts
 function checkAlerts(sensorData) {
     const alerts = [];
-    const [temp, humidity, light, rain] = sensorData;
+    const [temp, humidity, light, rain, smoke] = sensorData;
 
     if (temp && temp.value > 35) {
         alerts.push({ type: 'warning', message: `High temperature detected: ${temp.value.toFixed(1)}°C` });
@@ -460,8 +488,11 @@ function checkAlerts(sensorData) {
     if (humidity && humidity.value > 90) {
         alerts.push({ type: 'info', message: `High humidity: ${humidity.value.toFixed(1)}%` });
     }
-    if (rain && rain.value > 10) {
-        alerts.push({ type: 'warning', message: `Heavy rainfall: ${rain.value.toFixed(1)}mm` });
+    if (rain && rain.value) {
+        alerts.push({ type: 'info', message: 'Rain detected' });
+    }
+    if (smoke && smoke.value) {
+        alerts.push({ type: 'warning', message: 'Smoke detected!' });
     }
 
     const container = document.getElementById('alerts-container');
